@@ -1,23 +1,16 @@
 [build]
   command = """
-    pip install --upgrade pip && 
-    pip install -r requirements.txt && 
-    streamlit run main.py
+    python -m pip install --upgrade pip &&
+    pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu &&
+    streamlit run main.py --server.port=$PORT --server.headless=true
   """
   publish = "."
   functions = "functions"
 
 [build.environment]
   PYTHON_VERSION = "3.10"
-  STREAMLIT_SERVER_HEADLESS = "true"
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
 
 [[redirects]]
-  from = "/app/*"
-  to = "/"
+  from = "/*"
+  to = "/index.html"
   status = 200
