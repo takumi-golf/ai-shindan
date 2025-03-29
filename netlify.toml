@@ -8,10 +8,4 @@
   functions = "functions"
 
 [build.environment]
-  PYTHON_VERSION = "3.10.8"
-  NODE_VERSION = "16.13.0"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  PYTHON_VERSION = "3.10"

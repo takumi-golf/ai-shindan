@@ -1,31 +1,33 @@
 import streamlit as st
 
-st.title("AI診断プラットフォーム - 改良型インターフェース")
-
-# 症状選択
-st.header("症状について教えてください")
-symptoms = st.multiselect(
-    "当てはまる症状を選択してください",
-    ["頭痛", "めまい", "吐き気", "発熱", "せき"]
+# Streamlitページ設定
+st.set_page_config(
+    page_title="AI診断プラットフォーム",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# 症状の程度
-st.header("症状の程度を教えてください")
-headache_severity = st.slider("頭痛", 0, 5, step=1)
-dizziness_severity = st.slider("めまい", 0, 5, step=1)
-nausea_severity = st.slider("吐き気", 0, 5, step=1)
+# Firebaseや質問生成関連のインポート
+from firebase_config import db
+from diagnosis_generator import generate_questions
 
-# 発症時期
-onset = st.selectbox(
-    "症状はいつ頃から始まりましたか？",
-    ["今日", "昨日", "2-3日前", "1週間前", "1週間以上前"]
-)
+def main():
+    st.title("AI診断プラットフォーム")
+    st.sidebar.header("設定")
+    category = st.sidebar.selectbox("診断カテゴリ", ["性格診断", "適職診断", "恋愛傾向"])
+    difficulty = st.sidebar.slider("難易度", 1, 3, 2)
 
-# 自由記述エリア（任意）
-additional_info = st.text_area(
-    "その他気になること（任意）",
-    height=100
-)
+    questions = generate_questions(category, num_questions=5)
+    answers = []
+    for i, question in enumerate(questions):
+        answers.append(st.text_area(f"Q{i+1}: {question}", key=f"q{i}"))
 
-if st.button("診断する"):
-    st.write("診断結果を計算中...")
+    if st.button("診断を実行"):
+        if all(answers):
+            st.subheader("診断結果")
+            st.write("診断結果を計算中...")
+        else:
+            st.warning("すべての質問に回答してください")
+
+if __name__ == "__main__":
+    main()
