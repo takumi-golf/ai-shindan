@@ -1,15 +1,23 @@
 [build]
-  command = "pip install -r requirements.txt && streamlit run main.py"
+  command = """
+    pip install --upgrade pip && 
+    pip install -r requirements.txt && 
+    streamlit run main.py
+  """
   publish = "."
+  functions = "functions"
 
 [build.environment]
-  PYTHON_VERSION = "3.9"
+  PYTHON_VERSION = "3.10"
+  STREAMLIT_SERVER_HEADLESS = "true"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/app/*"
+  to = "/"
   status = 200
-
-
-[build.environment]
-  NODE_VERSION = "16"  # シェル環境を強制するために必要
