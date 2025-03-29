@@ -1,80 +1,31 @@
 import streamlit as st
-import numpy as np
-from diagnosis_generator import generate_questions
-from sentence_transformers import SentenceTransformer
-from firebase_config import db  # 追加
-from firebase_admin import firestore  # 追加
-import streamlit as st
-import os
 
-# Check if running on Netlify
-is_netlify = os.environ.get('NETLIFY') == 'true'
+st.title("AI診断プラットフォーム - 改良型インターフェース")
 
-if is_netlify:
-    # Netlify specific settings
-    st.set_page_config(page_title="AI診断プラットフォーム", layout="wide")
-else:
-    # Local development settings
-    st.set_page_config(page_title="AI診断プラットフォーム (開発中)", layout="wide")
+# 症状選択
+st.header("症状について教えてください")
+symptoms = st.multiselect(
+    "当てはまる症状を選択してください",
+    ["頭痛", "めまい", "吐き気", "発熱", "せき"]
+)
 
-# Rest of your Streamlit app code...
+# 症状の程度
+st.header("症状の程度を教えてください")
+headache_severity = st.slider("頭痛", 0, 5, step=1)
+dizziness_severity = st.slider("めまい", 0, 5, step=1)
+nausea_severity = st.slider("吐き気", 0, 5, step=1)
 
+# 発症時期
+onset = st.selectbox(
+    "症状はいつ頃から始まりましたか？",
+    ["今日", "昨日", "2-3日前", "1週間前", "1週間以上前"]
+)
 
+# 自由記述エリア（任意）
+additional_info = st.text_area(
+    "その他気になること（任意）",
+    height=100
+)
 
-# Streamlitページ設定
-st.set_page_config(page_title="AI診断プラットフォーム", layout="wide")
-
-# SentenceTransformerモデル初期化
-model = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
-
-def analyze_answers(answers):
-    answer_embeddings = model.encode(answers)
-    average_embedding = np.mean(answer_embeddings, axis=0)
-    
-    # 仮の性格タイプ分類
-    personality_types = ["外向的", "内向的", "論理的", "感情的", "冒険的"]
-    
-    # ランダム選択（実際はベクトル比較を推奨）
-    result = np.random.choice(personality_types)
-    
-    return {
-        "primary_type": result,
-        "confidence": float(np.random.rand()),
-        "vector": average_embedding.tolist()
-    }
-
-# サイドバー設定
-with st.sidebar:
-    st.header("設定")
-    category = st.selectbox("診断カテゴリ", ["性格診断", "適職診断", "恋愛傾向"])
-    difficulty = st.slider("難易度", 1, 3, 2)
-
-# メインコンテンツ
-st.title("AI診断プラットフォーム")
-questions = generate_questions(category, num_questions=5)
-
-answers = []
-for i, question in enumerate(questions):
-    answers.append(st.text_area(f"Q{i+1}: {question}", key=f"q{i}"))
-
-if st.button("診断を実行"):
-    if all(answers):  # 全回答チェック
-        results = analyze_answers(answers)
-        st.subheader("診断結果")
-        st.write(f"あなたは【{results['primary_type']}】タイプです")
-        st.write(f"信頼度: {results['confidence']:.2f}")
-        
-        # Firebase保存処理
-        try:
-            doc_ref = db.collection('diagnoses').document()
-            doc_ref.set({
-                'answers': answers,
-                'result': results['primary_type'],
-                'confidence': results['confidence'],
-                'timestamp': firestore.SERVER_TIMESTAMP
-            })
-            st.success("診断結果を保存しました！")
-        except Exception as e:
-            st.error(f"保存に失敗しました: {str(e)}")
-    else:
-        st.warning("すべての質問に回答してください")
+if st.button("診断する"):
+    st.write("診断結果を計算中...")
