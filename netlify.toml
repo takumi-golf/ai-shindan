@@ -1,11 +1,9 @@
 [build]
-  command = """
-    python -m pip install --upgrade pip &&
-    pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu &&
-    streamlit run main.py --server.port=$PORT --server.headless=true
-  """
+  command = "pip install -r requirements.txt && streamlit run main.py --server.port=$PORT --server.headless=true"
   publish = "."
-  functions = "functions"
-
 [build.environment]
   PYTHON_VERSION = "3.10"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
