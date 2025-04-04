@@ -1,10 +1,15 @@
 [build]
-  command = "pip install -r requirements.txt --extra-index-url=https://download.pytorch.org/whl/cpu && streamlit run main.py --server.port=${PORT:-8501}"
+  command = """
+    set -e &&
+    python -m pip install --upgrade pip &&
+    pip install -r requirements.txt --cache-dir .pip_cache &&
+    streamlit run main.py --server.port=${PORT:-8501} --server.headless=true
+  """
   publish = "."
-
-[build.environment]
-  PYTHON_VERSION = "3.9"
-  NODE_VERSION = "18"
+  [build.environment]
+    PYTHON_VERSION = "3.9"
+    NODE_VERSION = "16"
+    PIP_CACHE_DIR = ".pip_cache"
 
 [[redirects]]
   from = "/*"
